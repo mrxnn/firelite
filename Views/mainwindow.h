@@ -8,8 +8,11 @@
 #include <QAbstractItemModel>
 #include <QTableView>
 #include <QListWidget>
+#include <QSqlDatabase>
+#include <QSqlQueryModel>
 
 #include "Widgets/textedit.h"
+#include "Widgets/solutiontreewidget.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,9 +26,14 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_actionNew_triggered();
+    void on_actionOpen_triggered();
+
 private:
     Ui::MainWindow *ui;
 
+    // Toolbar
     QFontComboBox* fontsComboBox;
     QComboBox* fontSizeComboBox;
     QComboBox* selectedDatabaseIndicatorComboBox;
@@ -35,10 +43,19 @@ private:
     QCompleter* completer;
 
     // Window UI
+    SolutionTreeWidget* solutionTree;
     TextEdit* editor;
     QTableView* tableView;
     QListWidget* activityLog;
     QTabWidget* resultPanel;
+
+    // Database
+    QSqlDatabase database;
+    QSqlQueryModel* tableModel;
+    bool load(const QString& str);
+
+    // Database Error Reporting
+    void checkLastErrorIfAny();
 
     void initializeIcons();
     void initializeToolbars();

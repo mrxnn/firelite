@@ -1,41 +1,83 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QApplication>
+#include <QFontComboBox>
+#include <QFontDatabase>
+#include <QComboBox>
+#include <QIcon>
+#include <QTextEdit>
+#include <QTableView>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QDockWidget>
+#include <QMenuBar>
 #include <QToolBar>
-#include <QCompleter>
-#include <QCursor>
-#include <QByteArray>
-#include <QStringList>
-#include <QFile>
-#include <QStringListModel>
+#include <QTabWidget>
 #include <QSplitter>
 #include <QSizePolicy>
-#include <QWidget>
-#include <QTreeWidget>
-#include <QDockWidget>
+#include <QAction>
+#include <QTextDocument>
+#include <QClipboard>
+#include <QMimeData>
+#include <QApplication>
+#include <QFont>
+#include <QStatusBar>
+#include <QTextStream>
+#include <QFileDialog>
+#include <QFile>
+#include <QCloseEvent>
+#include <QSettings>
+#include <QSqlQueryModel>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QMessageBox>
+#include <QCompleter>
+#include <QDialog>
+#include <QPixmap>
+#include <QLabel>
+#include <QStringListModel>
+#include <QDesktopServices>
 
-#ifdef Q_OS_MAC
-const QString resource=":/Resources/Mac/"
-#else
-const QString resource=":/Resources/Windows/";
-#endif
+#include "Libraries/viewmodel.h"
+
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    // Initialization Part
+    /*
+     * Created the 'MainWindow' outline in order to make it simplify the creation of MenuBar/ToolBar icons,
+     * actions (or slots that handles the action) and shortcut keys. This can be also done by hand coding..
+     * and because of the Toolbars are created dynamically by hand written codes, combining part would be
+     * easier a bit. but that needs to create all the QAction pointers to be declared in the MainWindow.h
+     * in order to be refered from anywhere in the program. So it makes sense to let the designer to take
+     * care of the QAction pointers and all those ugly stuff, at least to my eyes.
+     */
     initializeIcons();
     initializeToolbars();
     initializeUI();
+
+    /*
+     * This section defines database related code, initializing all the necessary objects at startup
+     */
+    database = QSqlDatabase::addDatabase("QSQLITE");
+    tableModel = new QSqlQueryModel(this);
+    tableView->setModel(tableModel);
 }
+
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
+/*
+ * @brief Accepts a local URL to a file that contains all the key words that needs to be appeared in the TextEdit for autocompletion, and read it,
+ * then returns a pointer to a data model.
+ * @return QStringListModel
+ */
 QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
 {
     QFile file(fileName);
@@ -60,6 +102,10 @@ QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
     return new QStringListModel(words, completer);
 }
 
+
+/*
+ * Adds the relevant icons to the QActions declared using the designer
+ */
 void MainWindow::initializeIcons()
 {
     // File Actions
@@ -83,6 +129,10 @@ void MainWindow::initializeIcons()
     ui->actionAbout->setIcon(QIcon(resource + "about.png"));
 }
 
+
+/*
+ * Create all the toolbars and adds the necessary QActions into them.
+ */
 void MainWindow::initializeToolbars()
 {
     //! Document toolbar
@@ -144,6 +194,10 @@ void MainWindow::initializeToolbars()
     runTb->addAction(ui->actionRun);
 }
 
+
+/*
+ * Initialize the main UI of the MainWindow
+ */
 void MainWindow::initializeUI()
 {
     QSplitter* splitter = new QSplitter(Qt::Vertical, this);
@@ -179,7 +233,7 @@ void MainWindow::initializeUI()
     policy.setVerticalStretch(QSizePolicy::Expanding);
     widget->setSizePolicy(policy);
 
-    QTreeWidget* solutionTree = new QTreeWidget(this);
+    solutionTree = new SolutionTreeWidget(this);
 
     QDockWidget* solutionWidget = new QDockWidget(tr("File Explorar"), this);
     solutionWidget->setObjectName(QStringLiteral("FileExplorar"));
@@ -189,6 +243,101 @@ void MainWindow::initializeUI()
 
     setCentralWidget(splitter);
 }
+
+
+/*
+ * Creates a New Sqlite Database Document and opens it in the database explorar.
+ */
+void MainWindow::on_actionNew_triggered()
+{
+    QFileDialog fileDialog(this, tr("Create New Database..."));
+    fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+    fileDialog.setFileMode(QFileDialog::AnyFile);
+    fileDialog.setNameFilter("sqlite database documents (*.db *.sqlite)");
+    fileDialog.setDefaultSuffix("db");
+    if (fileDialog.exec() != QDialog::Accepted)
+        return;
+    const QString str = fileDialog.selectedFiles().first();
+
+    if (!str.isEmpty() && !str.isNull())
+    {
+        if (load(str))
+        {
+            solutionTree->addItemTotheExplorar(str);
+        }
+    }
+}
+
+/*
+ * Opens an existing sqlite database document and loads it into the database explorar.
+ */
+void MainWindow::on_actionOpen_triggered()
+{
+    QFileDialog fileDialog(this, tr("Open Existing Database..."));
+    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+    fileDialog.setFileMode(QFileDialog::ExistingFile);
+    fileDialog.setNameFilter("sqlite database documents (*.db *.sqlite);; All Files (*)");
+    if (fileDialog.exec() != QDialog::Accepted)
+        return;
+    const QString str = fileDialog.selectedFiles().first();
+
+    if (!str.isEmpty() && !str.isNull())
+    {
+        if(load(str))
+        {
+            solutionTree->addItemTotheExplorar(str);
+        }
+    }
+}
+
+/* Make the necessary pre requesites when a database document is created or opened. Set the opened
+ * database document is the one that is pointed by the global 'database' object in the application.
+ * and if the specified database file is not valid for some reason, it creates a new file in the
+ * same location silently.
+ */
+bool MainWindow::load(const QString &str)
+{
+    if (QFile::exists(str))
+    {
+        database.setDatabaseName(str);
+        checkLastErrorIfAny();
+        return database.open();
+    }
+
+    QFile db(str);
+    if (db.open(QIODevice::WriteOnly))
+    {
+        database.setDatabaseName(str);
+        checkLastErrorIfAny();
+        return database.open();
+    }
+
+    return false;
+}
+
+/* This function is executed manually after doing some database related operations, such as executing
+ * a query, changing the global database object to point into another database document ect. and it
+ * checks weather there are any error occured by the global database object, and immedietly reports
+ * it to the user if any.
+ */
+void MainWindow::checkLastErrorIfAny()
+{
+    if (database.lastError().isValid())
+    {
+        auto msgBox = new QMessageBox(this);
+        msgBox->setText(database.lastError().text());
+        msgBox->setIcon(QMessageBox::Critical);
+        msgBox->exec();
+        delete msgBox;
+    }
+}
+
+
+
+
+
+
+
 
 
 
