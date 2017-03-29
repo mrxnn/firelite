@@ -7,6 +7,7 @@
 
 SolutionTreeWidget::SolutionTreeWidget(QWidget *parent) : QTreeWidget(parent)
 {
+    setSelectionMode(QAbstractItemView::SingleSelection);
     setHeaderHidden(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &SolutionTreeWidget::itemSelectionChanged, this, &SolutionTreeWidget::OnItemSelectionChanged);
@@ -24,10 +25,11 @@ void SolutionTreeWidget::addItemTotheExplorar(const QString& path)
     auto qtvi = new QTreeWidgetItem;
     qtvi->setText(0, strippedName(path));
     qtvi->setToolTip(0, path);
-    qtvi->setIcon(0, QIcon(":/Icons/Icons/folder.png"));
+    qtvi->setIcon(0, QIcon(":/Resources/Tree/folder.png"));
 
     // Finally, add the tree item to the explorar
     this->addTopLevelItem(qtvi);
+    setCurrentItem(qtvi);
 }
 
 // Adds a new table to the selected database
@@ -41,7 +43,7 @@ void SolutionTreeWidget::addItemToTheSelectedNode(const QString& path)
     auto qtvi = new QTreeWidgetItem;
     qtvi->setText(0, strippedName(path));
     qtvi->setToolTip(0, path);
-    qtvi->setIcon(0, QIcon(":/Icons/Icons/table.png"));
+    qtvi->setIcon(0, QIcon(":/Resources/Tree/table.png"));
 
     // Finally, add the tree item to the currently selected database
     auto selecteddb = this->currentItem();

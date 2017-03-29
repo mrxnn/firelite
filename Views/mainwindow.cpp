@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     initializeIcons();
     initializeToolbars();
     initializeUI();
+    bind();
 
     /*
      * This section defines database related code, initializing all the necessary objects at startup
@@ -242,6 +243,31 @@ void MainWindow::initializeUI()
     addDockWidget(Qt::LeftDockWidgetArea, solutionWidget);
 
     setCentralWidget(splitter);
+}
+
+void MainWindow::bind()
+{
+    // Default
+    ui->actionSave->setEnabled(editor->document()->isModified());
+    ui->actionUndo->setEnabled(editor->document()->isUndoAvailable());
+    ui->actionRedo->setEnabled(editor->document()->isRedoAvailable());
+
+#ifndef QT_NO_CLIPBOARD
+    ui->actionCut->setEnabled(false);
+    ui->actionCopy->setEnabled(false);
+    ui->actionPaste->setEnabled(false);
+
+    connect(QApplication::clipboard(), &QClipboard::dataChanged, [&](){
+        if (const QMimeData *md = QApplication::clipboard()->mimeData())
+            ui->actionPaste->setEnabled(md->hasText());
+        });
+#endif
+
+    connect(editor, &TextEdit::copyAvailable, ui->actionCut, &QAction::setEnabled);
+    connect(editor, &TextEdit::copyAvailable, ui->actionCopy, &QAction::setEnabled);
+    connect(editor->document(), &QTextDocument::undoAvailable, ui->actionUndo, &QAction::setEnabled);
+    connect(editor->document(), &QTextDocument::redoAvailable, ui->actionRedo, &QAction::setEnabled);
+    connect(editor->document(), &QTextDocument::modificationChanged, ui->actionSave, &QAction::setEnabled);
 }
 
 

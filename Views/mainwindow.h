@@ -60,6 +60,7 @@ private:
     void initializeIcons();
     void initializeToolbars();
     void initializeUI();
+    void bind();
 };
 
 #endif // MAINWINDOW_H

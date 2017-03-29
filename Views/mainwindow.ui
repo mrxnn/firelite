@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string/>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../Resources/resources.qrc">
+    <normaloff>:/Resources/Logo/logo96.png</normaloff>:/Resources/Logo/logo96.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget"/>
   <widget class="QMenuBar" name="menuBar">
@@ -213,6 +217,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../Resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
