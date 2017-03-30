@@ -8,7 +8,15 @@
 SolutionTreeWidget::SolutionTreeWidget(QWidget *parent) : QTreeWidget(parent)
 {
     setSelectionMode(QAbstractItemView::SingleSelection);
-    setHeaderHidden(true);
+
+    // Header Item
+    auto h = new QTreeWidgetItem;
+    h->setIcon(0, QIcon(":/Resources/Tree/foldertree.png"));
+    h->setText(0, "(Localdb) | SQLITELocalDB | 160.67.0.1");
+    h->setFont(0, QFont("Calibri"));
+    setHeaderItem(h);
+    setHeaderHidden(false);
+
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &SolutionTreeWidget::itemSelectionChanged, this, &SolutionTreeWidget::OnItemSelectionChanged);
     connect(this, &SolutionTreeWidget::customContextMenuRequested, this, &SolutionTreeWidget::prepareMenu);
@@ -118,16 +126,15 @@ void SolutionTreeWidget::prepareMenu(const QPoint &pos)
 
     // Making actions depending on the type that is selected
     if (st == SelectedItemType::Database)
-    {
-        QAction* actionNewDatabase = new QAction(tr("New database..."));
-        QAction* actionRemoveDatabase = new QAction(tr("Remove database"));
-        QAction* actionExpandAll = new QAction(tr("Expand All"));
-        QAction* actionCollapseAll = new QAction(tr("Collapse All"));
+    {   
+        QAction* actionRemoveDatabase = new QAction(tr("Remove File")); actionRemoveDatabase->setFont(QFont("Calibri"));
+        QAction* actionNewDatabase = new QAction(tr("Create Table")); actionNewDatabase->setFont(QFont("Calibri"));
+        QAction* actionExpandAll = new QAction(tr("Expand All")); actionExpandAll->setFont(QFont("Calibri"));
+        QAction* actionCollapseAll = new QAction(tr("Collapse All")); actionCollapseAll->setFont(QFont("Calibri"));
 
         QMenu menu(this);
-        menu.addAction(actionNewDatabase);
         menu.addAction(actionRemoveDatabase);
-        menu.addSeparator();
+        menu.addAction(actionNewDatabase);
         menu.addAction(actionExpandAll);
         menu.addAction(actionCollapseAll);
 

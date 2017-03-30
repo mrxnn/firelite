@@ -11,6 +11,7 @@
 
 TextEdit::TextEdit(QWidget *parent) : QTextEdit(parent), c(0)
 {
+    setFont(QFont("Courier New", 10));
 }
 
 TextEdit::~TextEdit()

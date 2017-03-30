@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(resources);
 
     QApplication a(argc, argv);
+
     QCoreApplication::setOrganizationName("Mayura Ramanayaka");
     QCoreApplication::setApplicationName("Shots");
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
