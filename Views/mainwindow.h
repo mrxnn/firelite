@@ -41,12 +41,20 @@ private slots:
     void on_actionRun_triggered();
 
     void onSelectedItemChanged(QTreeWidgetItem* item, SolutionTreeWidget::SelectedItemType t);
+    void textFamily(const QFont& f);
 
     //! file
     bool fileSave();
     bool fileSaveAs();
     void filePrint();
     void filePrintPdf();
+
+#ifdef Q_OS_WIN
+    void on_actionNativeWindowsUI_triggered(bool checked);
+#endif
+    void on_actionShowTextOnToolbar_triggered(bool checked);
+    void on_actionAbout_triggered();
+    void on_actionAbout_Framework_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -64,7 +72,7 @@ private:
 
     //! Window UI
     SolutionTreeWidget* solutionTree;
-    TextEdit* editor;
+    TextEdit* editor = nullptr;
     QTableView* tableView;
     QListWidget* activityLog;
     QTabWidget* resultPanel;
@@ -79,6 +87,11 @@ private:
 
     //! database Error Reporting
     void checkLastErrorIfAny(QSqlQuery* query = nullptr);
+
+    //! settings
+    void ReadSettings();
+    void WriteSettings();
+    QStringList recentFileLists;
 
     void initializeIcons();
     void initializeToolbars();

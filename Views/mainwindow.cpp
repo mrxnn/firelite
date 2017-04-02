@@ -66,11 +66,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     database = QSqlDatabase::addDatabase("QSQLITE");
     tableModel = new QSqlQueryModel(this);
     tableView->setModel(tableModel);
+
+    ReadSettings();
 }
 
 
 MainWindow::~MainWindow()
 {
+    WriteSettings();
+
     delete ui;
 }
 
@@ -113,24 +117,17 @@ QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
  */
 void MainWindow::initializeIcons()
 {
-    // File Actions
     ui->actionNew->setIcon(QIcon(resource + "filenew.png"));
     ui->actionOpen->setIcon(QIcon(resource + "fileopen.png"));
     ui->actionSave->setIcon(QIcon(resource + "filesave.png"));
     ui->actionPrint->setIcon(QIcon(resource + "fileprint.png"));
     ui->actionExport->setIcon(QIcon(resource + "exportpdf.png"));
-
-    // Edit Actions
     ui->actionCut->setIcon(QIcon(resource + "editcut.png"));
     ui->actionCopy->setIcon(QIcon(resource + "editcopy.png"));
     ui->actionPaste->setIcon(QIcon(resource + "editpaste.png"));
     ui->actionUndo->setIcon(QIcon(resource + "editundo.png"));
     ui->actionRedo->setIcon(QIcon(resource + "editredo.png"));
-
-    // Run Actions
     ui->actionRun->setIcon(QIcon(resource + "execute.png"));
-
-    // Help Actions
     ui->actionAbout->setIcon(QIcon(resource + "about.png"));
 }
 
@@ -141,11 +138,10 @@ void MainWindow::initializeIcons()
  */
 void MainWindow::initializeToolbars()
 {
-    setToolButtonStyle(Qt::ToolButtonFollowStyle);
-
     //! Document toolbar
     //!
     auto documentTb = addToolBar(tr("Documents"));
+    documentTb->setObjectName("_document_tb");
     documentTb->addAction(ui->actionSave);
     documentTb->addAction(ui->actionPrint);
     documentTb->addAction(ui->actionExport);
@@ -153,6 +149,7 @@ void MainWindow::initializeToolbars()
     //! Edit toolbar
     //!
     auto editTb = addToolBar(tr("Edit"));
+    editTb->setObjectName("_edit_tb");
     editTb->addAction(ui->actionCut);
     editTb->addAction(ui->actionCopy);
     editTb->addAction(ui->actionPaste);
@@ -162,17 +159,31 @@ void MainWindow::initializeToolbars()
     //! Fonts toolbar
     //!
     auto fontsTb = addToolBar(tr("Fonts"));
+    fontsTb->setObjectName("_fonts_tb");
 
     //! Font selector combox box
     //!
     fontsComboBox = new QFontComboBox(this);
     fontsComboBox->setCurrentFont(QFont("Courier"));
     fontsTb->addWidget(fontsComboBox);
+    connect(fontsComboBox, &QFontComboBox::currentFontChanged, this, &MainWindow::textFamily);
 
     //! Font size selector box
     //!
     fontSizeComboBox = new QComboBox(this);
     fontSizeComboBox->setEditable(true);
+    connect(fontSizeComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index)
+    {
+        Q_UNUSED(index)
+
+        if (editor == nullptr) return;
+
+        QString str = editor->toPlainText();
+        editor->clear();
+        int size = fontSizeComboBox->currentText().toInt();
+        editor->setFontPointSize(size);
+        editor->setText(str);
+    });
 
     // Adding standard font sizes to the size combo box
     const QList<int> standardSizes = QFontDatabase::standardSizes();
@@ -186,12 +197,14 @@ void MainWindow::initializeToolbars()
     //!
     addToolBarBreak(Qt::TopToolBarArea);
     auto fileTb = addToolBar(tr("File"));
+    fileTb->setObjectName("_file_tb");
     fileTb->addAction(ui->actionNew);
     fileTb->addAction(ui->actionOpen);
 
     //! Selected database indicator tool item
     //!
     auto databaseTb = addToolBar(tr("Database"));
+    databaseTb->setObjectName("_database_tb");
     selectedDatabaseIndicatorComboBox = new QComboBox(this);
     selectedDatabaseIndicatorComboBox->setMinimumWidth(140);
     databaseTb->addWidget(selectedDatabaseIndicatorComboBox);
@@ -199,6 +212,7 @@ void MainWindow::initializeToolbars()
     //! Run toolbar
     //!
     auto runTb = addToolBar(tr("Run"));
+    runTb->setObjectName("run_tb");
     runTb->addAction(ui->actionRun);
 }
 
@@ -251,6 +265,10 @@ void MainWindow::initializeUI()
     addDockWidget(Qt::LeftDockWidgetArea, solutionWidget);
 
     setCentralWidget(splitter);
+
+#ifndef Q_OS_WIN
+    ui->actionNativeWindowsUI->setVisible(false);
+#endif
 }
 
 
@@ -405,10 +423,91 @@ void MainWindow::on_actionRun_triggered()
             loadTablesToTheSelectedDatabase();
 
         QListWidgetItem* indice = new QListWidgetItem(QIcon(resource + "execute.png"), message, activityLog);
-        indice->setToolTip(command);
+        indice->setToolTip(command.trimmed());
         activityLog->setCurrentItem(indice);
         resultPanel->setCurrentIndex(1);
     }
+}
+
+
+/**
+ * @brief MainWindow::on_actionNativeWindowsUI_triggered
+ * toggle between the Windows Vista Theme and Fusion Theme
+ *
+ * @param checked
+ */
+void MainWindow::on_actionNativeWindowsUI_triggered(bool checked)
+{
+    if (checked)
+        qApp->setStyle("windowsvista");
+    else
+        qApp->setStyle("fusion");
+}
+
+
+/**
+ * @brief MainWindow::on_actionShowTextOnToolbar_triggered
+ * toggle between tool button text visibility and hidden
+ *
+ * @param checked
+ */
+void MainWindow::on_actionShowTextOnToolbar_triggered(bool checked)
+{
+    if (checked)
+        setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    else
+        setToolButtonStyle(Qt::ToolButtonFollowStyle);
+}
+
+
+/**
+ * @brief MainWindow::on_actionAbout_triggered
+ * Displays the about Window
+ */
+void MainWindow::on_actionAbout_triggered()
+{
+    QDialog dlg(this);
+    dlg.setWindowTitle(tr("About"));
+    dlg.setMinimumWidth(220);
+    dlg.setMinimumHeight(140);
+
+    Qt::WindowFlags flags = 0;
+    flags = Qt::Window;
+    flags |= Qt::WindowCloseButtonHint;
+    // flags |= Qt::MSWindowsFixedSizeDialogHint;
+    dlg.setWindowFlags(flags);
+
+    QVBoxLayout* layout = new QVBoxLayout;
+    QLabel* image = new QLabel(&dlg);
+    image->setPixmap(QPixmap(":/Resources/Logo/logo96.png"));
+    image->setAlignment(Qt::AlignCenter);
+    layout->addWidget(image);
+
+    QLabel* line1 = new QLabel(tr("Shots 1.1 Sqlite Manager"), &dlg);
+    line1->setAlignment(Qt::AlignCenter);
+    layout->addWidget(line1);
+
+    QLabel* line2 = new QLabel(tr("Written By Mayura Ramanayaka"), &dlg);
+    line2->setAlignment(Qt::AlignCenter);
+    layout->addWidget(line2);
+
+    QLabel* line3 = new QLabel(tr("Copyright © 2016 - <a href='http://mayuraray.github.io/shots/'>Homepage</a>"), &dlg);
+    line3->setAlignment(Qt::AlignCenter);
+    layout->addWidget(line3);
+
+    connect(line3, &QLabel::linkActivated, &QDesktopServices::openUrl);
+    dlg.setLayout(layout);
+    dlg.exec();
+}
+
+
+/**
+ * @brief MainWindow::on_actionAbout_Framework_triggered
+ * Displays the About Qt Window
+ */
+void MainWindow::on_actionAbout_Framework_triggered()
+{
+    QMessageBox::aboutQt(this, tr("About Framework"));
 }
 
 
@@ -453,29 +552,29 @@ bool MainWindow::load(const QString &str)
  */
 MainWindow::ExecuteQueryType MainWindow::getQueryType(const QString &query, QString& message, int rows)
 {
-    if (query.startsWith("create table if not exists", Qt::CaseInsensitive))
+    if (query.trimmed().startsWith("create table if not exists", Qt::CaseInsensitive))
     {
         message = "Succeed: 0 rows affected";
-        goto Default;
+        return ExecuteQueryType::CreateStatement;
     }
-    else if (query.startsWith("create table", Qt::CaseInsensitive))
+    else if (query.trimmed().startsWith("create table", Qt::CaseInsensitive))
     {
         message = QString("Table created: %1 rows affected").arg(rows);
         return ExecuteQueryType::CreateStatement;
     }
-    else if (query.startsWith("drop table", Qt::CaseInsensitive))
+    else if (query.trimmed().startsWith("drop table", Qt::CaseInsensitive))
     {
         message = QString("Table deleted: %1 rows affected").arg(rows);
         return ExecuteQueryType::DropStatement;
     }
-    else if (query.startsWith("select", Qt::CaseInsensitive))
+    else if (query.trimmed().startsWith("select", Qt::CaseInsensitive))
     {
         return ExecuteQueryType::SelectStatement;
     }
     else
     {
         message = QString("Succeed: %1 rows affected").arg(rows);
-        Default: return ExecuteQueryType::OtherStatement;
+        return ExecuteQueryType::OtherStatement;
     }
 }
 
@@ -682,39 +781,102 @@ void MainWindow::setSelectedDatabaseIndicatorVisible(const QString &txt)
 }
 
 
+/**
+ * @brief MainWindow::WriteSettings
+ *
+ * Save Application Settings
+ */
+void MainWindow::WriteSettings()
+{
+    recentFileLists.clear();
+    for (int i = 0; i < solutionTree->topLevelItemCount(); ++i)
+    {
+        recentFileLists.removeAll(solutionTree->topLevelItem(i)->toolTip(0));
+        recentFileLists.prepend(solutionTree->topLevelItem(i)->toolTip(0));
+    }
+
+    QSettings m_settings;
+    m_settings.setValue("RecentFiles", recentFileLists);
+    m_settings.setValue("IsTextVisibleOnToolButtons", ui->actionShowTextOnToolbar->isChecked());
+    m_settings.setValue("WindowState", saveState());
+#ifdef Q_OS_WIN
+    m_settings.setValue("IsWindowsNativeThemeSet", ui->actionNativeWindowsUI->isChecked());
+#endif
+}
 
 
+/**
+ * @brief MainWindow::ReadSettings
+ *
+ * Load all the application settings
+ */
+void MainWindow::ReadSettings()
+{
+    QSettings m_settings;
+
+    recentFileLists = m_settings.value("RecentFiles").toStringList();
+    ui->actionShowTextOnToolbar->setChecked(m_settings.value("IsTextVisibleOnToolButtons", true).toBool());
+    restoreState(m_settings.value("WindowState").toByteArray());
+
+#ifdef Q_OS_WIN
+    ui->actionNativeWindowsUI->setChecked(m_settings.value("IsWindowsNativeThemeSet", true).toBool());
+
+    if (ui->actionNativeWindowsUI->isChecked())
+        qApp->setStyle("windowsvista");
+    else
+        qApp->setStyle("fusion");
+#endif
+
+    if (ui->actionShowTextOnToolbar->isChecked())
+        setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    else
+        setToolButtonStyle(Qt::ToolButtonFollowStyle);
+
+    //! Recently opened file list
+    //!
+    if (recentFileLists.count() == 0)
+        return;
+
+    ui->menuFile->addSeparator();
+    QMenu* recentFileMenu = new QMenu(tr("Recent Files"), this);
+    recentFileMenu->setIcon(QIcon(resource + "fileopen.png"));
+    ui->menuFile->addMenu(recentFileMenu);
+
+    foreach (const QString& str, recentFileLists)
+    {
+        auto strippedName = [](QString str)
+        {
+            return QFileInfo(str).fileName();
+        };
+
+        recentFileMenu->addAction(strippedName(str), this, [&, str]()
+        {
+            if (!QFile::exists(str))
+            {
+                QMessageBox msgBox(this);
+                msgBox.setWindowTitle(tr("Loading in Solution Explorar Failed"));
+                msgBox.setText(tr("Could not find selected file in path to load in File Explorar."));
+                msgBox.setDetailedText(QString("The file you selected, %1, cannot be found in the file system. could be deleted or renamed from outside, or moved to another location.").arg(str));
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.exec();
+                return;
+            }
+
+            bool isLoaded = load(str);
+            if (isLoaded)
+            {
+                solutionTree->addItemTotheExplorar(str);
+                loadTablesToTheSelectedDatabase();
+            }
+        });
+    }
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void MainWindow::textFamily(const QFont &f)
+{
+    editor->setFont(f);
+}
 
 
 

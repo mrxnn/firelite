@@ -127,10 +127,16 @@ void SolutionTreeWidget::prepareMenu(const QPoint &pos)
     // Making actions depending on the type that is selected
     if (st == SelectedItemType::Database)
     {   
-        QAction* actionRemoveDatabase = new QAction(tr("Remove File")); actionRemoveDatabase->setFont(QFont("Calibri"));
-        QAction* actionNewDatabase = new QAction(tr("Create Table")); actionNewDatabase->setFont(QFont("Calibri"));
-        QAction* actionExpandAll = new QAction(tr("Expand All")); actionExpandAll->setFont(QFont("Calibri"));
-        QAction* actionCollapseAll = new QAction(tr("Collapse All")); actionCollapseAll->setFont(QFont("Calibri"));
+        QAction* actionRemoveDatabase = new QAction(tr("Remove File"));
+        QAction* actionNewDatabase = new QAction(tr("Create Table"));
+        QAction* actionExpandAll = new QAction(tr("Expand All"));
+        QAction* actionCollapseAll = new QAction(tr("Collapse All"));
+
+        // Font
+        actionRemoveDatabase->setFont(QFont("Calibri"));
+        actionNewDatabase->setFont(QFont("Calibri"));
+        actionExpandAll->setFont(QFont("Calibri"));
+        actionCollapseAll->setFont(QFont("Calibri"));
 
         QMenu menu(this);
         menu.addAction(actionRemoveDatabase);
@@ -144,6 +150,10 @@ void SolutionTreeWidget::prepareMenu(const QPoint &pos)
     {
         QAction* actionSelectAllCommand = new QAction(tr("Select top 200 records"));
         QAction* actionDropCommand = new QAction(tr("Drop table"));
+
+        // Font
+        actionSelectAllCommand->setFont(QFont("Calibri"));
+        actionDropCommand->setFont(QFont("Calibri"));
 
         QMenu menu(this);
         menu.addAction(actionSelectAllCommand);
