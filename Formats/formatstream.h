@@ -25,6 +25,7 @@ private:
     QTextCharFormat keywordFormat;
     QTextCharFormat numberFormat;
     QTextCharFormat multiLineCommentFormat;
+    QTextCharFormat singleLineCommentFormat;
     QTextCharFormat quotationFormat;
     QTextCharFormat singleQuatationFormat;
     QTextCharFormat functionFormat;

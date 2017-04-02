@@ -13,6 +13,7 @@
 #include <QCloseEvent>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QDockWidget>
 
 #include "Widgets/textedit.h"
 #include "Widgets/solutiontreewidget.h"
@@ -50,6 +51,7 @@ private slots:
 
     void onSelectedItemChanged(QTreeWidgetItem* item, SolutionTreeWidget::SelectedItemType t);
     void onStatementRequested(QString command);
+    void onTableGeneratorRequested();
     void textFamily(const QFont& f);
 
     //! file

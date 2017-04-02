@@ -225,6 +225,11 @@ FormatStream::FormatStream(QTextDocument *parent)
     rule.format = functionFormat;
     highlightingRules.append(rule);
 
+    singleLineCommentFormat.setForeground(Qt::darkGreen);
+    rule.pattern = QRegExp("--.*");
+    rule.format = singleLineCommentFormat;
+    highlightingRules.append(rule);
+
     commentStartExpression = QRegExp("/\\*");
     commentEndExpression = QRegExp("\\*/");
 }

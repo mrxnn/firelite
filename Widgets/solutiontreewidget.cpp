@@ -128,11 +128,13 @@ void SolutionTreeWidget::prepareMenu(const QPoint &pos)
     if (st == SelectedItemType::Database)
     {   
         QAction* actionRemoveDatabase = new QAction(tr("Remove File"));
+        QAction* actionCreateNewTable = new QAction(tr("New Table"));
         QAction* actionExpandAll = new QAction(tr("Expand"));
         QAction* actionCollapseAll = new QAction(tr("Collapse"));
 
         // Font
         actionRemoveDatabase->setFont(QFont("Calibri"));
+        actionCreateNewTable->setFont(QFont("Calibri"));
         actionExpandAll->setFont(QFont("Calibri"));
         actionCollapseAll->setFont(QFont("Calibri"));
 
@@ -150,6 +152,13 @@ void SolutionTreeWidget::prepareMenu(const QPoint &pos)
             if (topLevelItemCount() == 0)
                 emit selectedItemChanged(nullptr, SelectedItemType::None);
 
+        });
+
+        menu.addAction(actionCreateNewTable);
+        connect(actionCreateNewTable, &QAction::triggered, [&](){
+
+            if (getSelectedItemType() == SelectedItemType::Database)
+                emit tableGeneratorRequested();
         });
 
         menu.addAction(actionExpandAll);

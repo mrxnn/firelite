@@ -43,6 +43,7 @@
 
 #include "Libraries/viewmodel.h"
 #include "Formats/formatstream.h"
+#include "Widgets/tblgenerator.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -269,9 +270,26 @@ void MainWindow::initializeUI()
 
     //! custom widget
     resultPanel = new QTabWidget(this);
+    resultPanel->setContextMenuPolicy(Qt::ActionsContextMenu);
     resultPanel->setTabPosition(QTabWidget::East);
     resultPanel->addTab(tableView, tr("Result"));
     resultPanel->addTab(activityLog, tr("History"));
+
+    // context menu for the result panel
+    auto actionResultRemove = new QAction(tr("Remove current records"), this);
+    resultPanel->addAction(actionResultRemove);
+    connect(actionResultRemove, &QAction::triggered, [&]()
+    {
+        int index = resultPanel->currentIndex();
+        switch (index) {
+        case 0:
+            tableModel->clear();
+            break;
+        case 1:
+            activityLog->clear();
+            break;
+        }
+    });
 
     //! adding widgets
     splitter->addWidget(editor);
@@ -284,6 +302,7 @@ void MainWindow::initializeUI()
     policy.setVerticalStretch(QSizePolicy::Expanding);
     widget->setSizePolicy(policy);
 
+    //! Solution Tree (Database Explorar)
     solutionTree = new SolutionTreeWidget(this);
 
     QDockWidget* solutionWidget = new QDockWidget(tr("File Explorar"), this);
@@ -358,6 +377,8 @@ void MainWindow::bind()
             editor->insertPlainText(tableName);
         }
     });
+
+    connect(solutionTree, &SolutionTreeWidget::tableGeneratorRequested, this, &MainWindow::onTableGeneratorRequested);
 }
 
 
@@ -646,7 +667,7 @@ void MainWindow::loadTablesToTheSelectedDatabase()
             auto contains = [&](const QString& tableName)
             {
                 for (int i = 0; i < ci->childCount(); ++i)
-                    if (tableName == ci->child(i)->text(0))
+                    if (tableName == ci->child(i)->text(0) || tableName == "sqlite_sequence")
                         return true;
                 return false;
             };
@@ -734,6 +755,18 @@ void MainWindow::onStatementRequested(QString command)
 {
     editor->setText(command);
 }
+
+void MainWindow::onTableGeneratorRequested()
+{
+    TblGenerator tblgen(this);
+    tblgen.resize(455, 350);
+    if (tblgen.exec() == QDialog::Accepted)
+    {
+        editor->setText(tblgen.Generate());
+        editor->document()->setModified(true);
+    }
+}
+
 
 /**
  * @brief MainWindow::fileSave

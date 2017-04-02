@@ -27,13 +27,15 @@ SOURCES     += main.cpp\
             Views/mainwindow.cpp \
             Widgets/textedit.cpp \
             Widgets/solutiontreewidget.cpp \
-    Formats/formatstream.cpp
+    Formats/formatstream.cpp \
+    Widgets/tblgenerator.cpp
 
 HEADERS     += Views/mainwindow.h \
             Libraries/viewmodel.h \
             Widgets/textedit.h \
             Widgets/solutiontreewidget.h \
-    Formats/formatstream.h
+    Formats/formatstream.h \
+    Widgets/tblgenerator.h
 
 FORMS       += Views/mainwindow.ui
 
