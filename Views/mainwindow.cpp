@@ -4,6 +4,7 @@
 #include <QFontComboBox>
 #include <QFontDatabase>
 #include <QComboBox>
+#include <QListWidget>
 #include <QIcon>
 #include <QTextEdit>
 #include <QTableView>
@@ -44,18 +45,20 @@
 #include "Libraries/viewmodel.h"
 #include "Formats/formatstream.h"
 #include "Widgets/tblgenerator.h"
+#include "Widgets/textedit.h"
+#include "Widgets/solutiontreewidget.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
     /*
-     * Created the 'MainWindow' outline in order to make it simplify the creation of MenuBar/ToolBar icons,
-     * actions (or slots that handles the action) and shortcut keys. This can be also done by hand coding..
-     * and because of the Toolbars are created dynamically by hand written codes, combining part would be
-     * easier a bit. but that needs to create all the QAction pointers to be declared in the MainWindow.h
-     * in order to be refered from anywhere in the program. So it makes sense to let the designer to take
-     * care of the QAction pointers and all those ugly stuff, at least to my eyes.
+     * Created the MainWindow outline using the QtDesigner in order to make it simple to cretae MenuBar and Toolbars, including the StatusTips, Shortcuts and so
+     * on. This could have done manually by hand coding, but it requires each and every QAction pointers to be created by typing codes, which is a bit overkill.
+     * And in fact the designer takes care of all these clumsy stuff just fine for now.
+     *
+     * Although the QActions are created by using QtDesigner, setting icons is done by @code initializeIcons() function, because the Icons depends on the platform
+     * in which the application runs.
      */
     initializeIcons();
     initializeToolbars();
@@ -102,13 +105,9 @@ void MainWindow::dropEvent(QDropEvent *e)
         QMessageBox::warning(this, tr(""), database.lastError().text());
 }
 
-
-/**
- * @brief MainWindow::modelFromFile
- * Accepts a local URL to a file that contains all the key words that needs to be appeared in the TextEdit for autocompletion, and read it,
- * then returns a pointer to a data model.
- *
- * @return QStringListModel
+/*
+ * Accepts a local URL to a file in the file system that contains all the keywords that needs to be appeared in the TextEdit for autocompletion. It reads the
+ * keywords, creates StringListModel and returns a pointer to the data model.
  */
 QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
 {
@@ -134,30 +133,29 @@ QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
     return new QStringListModel(words, completer);
 }
 
-
-/**
- * @brief MainWindow::initializeIcons
- * Adds the relevant icons to the QActions that are already declared using the Qt designer.
+/*
+ * MainWindow::initializeIcons
+ * Adds the relevant icons to the QActions depending on the Operating System. If the OS has a standard icon theme already defined, those icons are set.
  */
 void MainWindow::initializeIcons()
 {
-    ui->actionNew->setIcon(QIcon(resource + "filenew.png"));
-    ui->actionOpen->setIcon(QIcon(resource + "fileopen.png"));
-    ui->actionSave->setIcon(QIcon(resource + "filesave.png"));
-    ui->actionPrint->setIcon(QIcon(resource + "fileprint.png"));
-    ui->actionExport->setIcon(QIcon(resource + "exportpdf.png"));
-    ui->actionCut->setIcon(QIcon(resource + "editcut.png"));
-    ui->actionCopy->setIcon(QIcon(resource + "editcopy.png"));
-    ui->actionPaste->setIcon(QIcon(resource + "editpaste.png"));
-    ui->actionUndo->setIcon(QIcon(resource + "editundo.png"));
-    ui->actionRedo->setIcon(QIcon(resource + "editredo.png"));
+    ui->actionNew->setIcon(QIcon::fromTheme("document-new", QIcon(resource + "filenew.png")));
+    ui->actionOpen->setIcon(QIcon::fromTheme("document-open", QIcon(resource + "fileopen.png")));
+    ui->actionSave->setIcon(QIcon::fromTheme("document-save", QIcon(resource + "filesave.png")));
+    ui->actionPrint->setIcon(QIcon::fromTheme("document-print", QIcon(resource + "fileprint.png")));
+    ui->actionExport->setIcon(QIcon::fromTheme("document-printpdf", QIcon(resource + "exportpdf.png")));
+    ui->actionCut->setIcon(QIcon::fromTheme("edit-cut", QIcon(resource + "editcut.png")));
+    ui->actionCopy->setIcon(QIcon::fromTheme("edit-copy", QIcon(resource + "editcopy.png")));
+    ui->actionPaste->setIcon(QIcon::fromTheme("edit-paste", QIcon(resource + "editpaste.png")));
+    ui->actionUndo->setIcon(QIcon::fromTheme("edit-undo", QIcon(resource + "editundo.png")));
+    ui->actionRedo->setIcon(QIcon::fromTheme("edit-redo", QIcon(resource + "editredo.png")));
+
+    //! these two doesn't depend on the platform
     ui->actionRun->setIcon(QIcon(resource + "execute.png"));
     ui->actionAbout->setIcon(QIcon(resource + "about.png"));
 }
 
-
-/**
- * @brief MainWindow::initializeToolbars
+/*
  * Create all the toolbars and adds the necessary QActions into them.
  */
 void MainWindow::initializeToolbars()
@@ -240,9 +238,8 @@ void MainWindow::initializeToolbars()
     runTb->addAction(ui->actionRun);
 }
 
-
-/**
- * @brief MainWindow::initializeUI
+/*
+ * MainWindow::initializeUI
  * Initialize the main UI of the MainWindow.
  */
 void MainWindow::initializeUI()
@@ -275,7 +272,7 @@ void MainWindow::initializeUI()
     resultPanel->addTab(tableView, tr("Result"));
     resultPanel->addTab(activityLog, tr("History"));
 
-    // context menu for the result panel
+    //! context menu for the result panel
     auto actionResultRemove = new QAction(tr("Remove current records"), this);
     resultPanel->addAction(actionResultRemove);
     connect(actionResultRemove, &QAction::triggered, [&]()
@@ -318,11 +315,8 @@ void MainWindow::initializeUI()
 #endif
 }
 
-
-/**
- * @brief MainWindow::bind
- * Establishes all the connections in the differet part of the Main UI. It doesn't contain all the connections, but the
- * ones that are directly related to the Main UI.
+/*
+ * Establishes all the connections in the differet part of the Main UI. It doesn't contain all the connections, but the ones that are directly related to the Main UI.
  * Note: No connections are defined using the Qt Designer.
  */
 void MainWindow::bind()
@@ -381,9 +375,7 @@ void MainWindow::bind()
     connect(solutionTree, &SolutionTreeWidget::tableGeneratorRequested, this, &MainWindow::onTableGeneratorRequested);
 }
 
-
-/**
- * @brief MainWindow::on_actionNew_triggered
+/*
  * Creates a New Sqlite Database Document and opens it in the database explorar.
  */
 void MainWindow::on_actionNew_triggered()
@@ -406,9 +398,7 @@ void MainWindow::on_actionNew_triggered()
     }
 }
 
-
-/**
- * @brief MainWindow::on_actionOpen_triggered
+/*
  * opens an existing sqlite database document and loads it into the database explorar.
  */
 void MainWindow::on_actionOpen_triggered()
@@ -431,10 +421,8 @@ void MainWindow::on_actionOpen_triggered()
     }
 }
 
-
-/**
- * @brief MainWindow::on_actionRun_triggered
- * Execute the statement typed in the editor.
+/*
+ * Execute the statement
  */
 void MainWindow::on_actionRun_triggered()
 {
@@ -487,12 +475,9 @@ void MainWindow::on_actionRun_triggered()
     }
 }
 
-
-/**
- * @brief MainWindow::on_actionNativeWindowsUI_triggered
- * toggle between the Windows Vista Theme and Fusion Theme
- *
- * @param checked
+/*
+ * MainWindow::on_actionNativeWindowsUI_triggered
+ * toggle between the Windows Vista Theme and Fusion Theme (only on Windows)
  */
 void MainWindow::on_actionNativeWindowsUI_triggered(bool checked)
 {
@@ -502,12 +487,9 @@ void MainWindow::on_actionNativeWindowsUI_triggered(bool checked)
         qApp->setStyle("fusion");
 }
 
-
-/**
- * @brief MainWindow::on_actionShowTextOnToolbar_triggered
+/*
+ * MainWindow::on_actionShowTextOnToolbar_triggered
  * toggle between tool button text visibility and hidden
- *
- * @param checked
  */
 void MainWindow::on_actionShowTextOnToolbar_triggered(bool checked)
 {
@@ -517,9 +499,7 @@ void MainWindow::on_actionShowTextOnToolbar_triggered(bool checked)
         setToolButtonStyle(Qt::ToolButtonFollowStyle);
 }
 
-
-/**
- * @brief MainWindow::on_actionAbout_triggered
+/*
  * Displays the about Window
  */
 void MainWindow::on_actionAbout_triggered()
@@ -541,7 +521,7 @@ void MainWindow::on_actionAbout_triggered()
     image->setAlignment(Qt::AlignCenter);
     layout->addWidget(image);
 
-    QLabel* line1 = new QLabel(tr("Shots 1.1 Sqlite Manager"), &dlg);
+    QLabel* line1 = new QLabel(tr("Shots 1.0 Sqlite Manager"), &dlg);
     line1->setAlignment(Qt::AlignCenter);
     layout->addWidget(line1);
 
@@ -558,9 +538,7 @@ void MainWindow::on_actionAbout_triggered()
     dlg.exec();
 }
 
-
-/**
- * @brief MainWindow::on_actionAbout_Framework_triggered
+/*
  * Displays the About Qt Window
  */
 void MainWindow::on_actionAbout_Framework_triggered()
@@ -568,16 +546,9 @@ void MainWindow::on_actionAbout_Framework_triggered()
     QMessageBox::aboutQt(this, tr("About Framework"));
 }
 
-
-/**
- * @brief MainWindow::load
- * Make the necessary pre requesites when a database document is created or opened. Set the opened
- * database document is the one that is pointed by the global 'database' object in the application.
- * and if the specified database file is not valid for some reason, it creates a new file in the
- * same location silently.
- *
- * @param str - location of the Database File
- * @return
+/*
+ * Make the necessary pre requesites when a database document is created or opened. Set the opened database document as the one that is pointed by the global
+ * 'database' object in the application. and if the specified database file is not valid for any reason, a new document is created at the specified path silently.
  */
 bool MainWindow::load(const QString &str)
 {
@@ -599,14 +570,8 @@ bool MainWindow::load(const QString &str)
     return false;
 }
 
-
-/**
- * @brief MainWindow::getQueryType Get the type of query that was executed, and generate a notification based on the query result.
- * @param query query that was executed
- * @param message reference variable to be initialized assigning a string notification about the query result
- * @param rows number of rows affected by the executed query
- *
- * @return the type of query that was executed
+/*
+ * Get the type of query that was executed, and generate a notification based on the query type.
  */
 MainWindow::ExecuteQueryType MainWindow::getQueryType(const QString &query, QString& message, int rows)
 {
@@ -636,11 +601,8 @@ MainWindow::ExecuteQueryType MainWindow::getQueryType(const QString &query, QStr
     }
 }
 
-
-/**
- * @brief MainWindow::loadTablesToTheSelectedDatabase
- * Loads all the tables that are already stored in a database document and add each table indicators to the treeView underneath the
- * database name Item.
+/*
+ * Loads all the tables that are already stored in a database document and add each table indicators to the treeView underneath the database name Item.
  */
 void MainWindow::loadTablesToTheSelectedDatabase()
 {   
@@ -678,15 +640,9 @@ void MainWindow::loadTablesToTheSelectedDatabase()
     }
 }
 
-
-/**
- * @brief MainWindow::checkLastErrorIfAny
- * This function is executed manually after doing some database related operations, such as executing
- * a query, changing the global database object to point into another database document ect. and it
- * checks weather there are any error occured by the global database object, and immedietly reports
- * it to the user if any.
- *
- * @param query
+/*
+ * This function is executed manually after doing any database related task, such as executing a query, changing the global database object to point into
+ * another database document etc. and it checks weather there are any error occured by the global database object, and immedietly reports  it to the user if any.
  */
 void MainWindow::checkLastErrorIfAny(QSqlQuery *query)
 {
@@ -710,14 +666,9 @@ void MainWindow::checkLastErrorIfAny(QSqlQuery *query)
     }
 }
 
-
-/**
- * @brief MainWindow::onSelectedItemChanged
- * This event is fired whenever an item is selected in the SolutionTreeWidget by the user. It makes the selected database (if the selected
- * item is a database) is the active one (or the one that points by the global database object).
- *
- * @param item
- * @param t
+/*
+ * This event is fired whenever an item is selected in the SolutionTreeWidget by the user. It set the selected database (if the selected item is a database)
+ * as the active one (or the one that points by the global database object).
  */
 void MainWindow::onSelectedItemChanged(QTreeWidgetItem *item, SolutionTreeWidget::SelectedItemType t)
 {
@@ -746,16 +697,33 @@ void MainWindow::onSelectedItemChanged(QTreeWidgetItem *item, SolutionTreeWidget
         setSelectedDatabaseIndicatorVisible(item->text(0));
         break;
 
+    // if selected item is a table, set it's parent (the database in this case) as the global database object, and open it...
+    case SolutionTreeWidget::SelectedItemType::Table:
+        if (item->parent())
+        {
+            database.setDatabaseName(item->parent()->toolTip(0));
+            database.open();
+            setSelectedDatabaseIndicatorVisible(item->parent()->text(0));
+        }
+
+        break;
+
     default:
         break;
     }
 }
 
+/*
+ * set text (sql command) to the editor
+ */
 void MainWindow::onStatementRequested(QString command)
 {
     editor->setText(command);
 }
 
+/*
+ * show the table generator
+ */
 void MainWindow::onTableGeneratorRequested()
 {
     TblGenerator tblgen(this);
@@ -767,11 +735,8 @@ void MainWindow::onTableGeneratorRequested()
     }
 }
 
-
-/**
- * @brief MainWindow::fileSave
+/*
  * Saves whatever typed in the editor (TextEdit) as a .sql document
- * @return
  */
 bool MainWindow::fileSave()
 {
@@ -790,11 +755,8 @@ bool MainWindow::fileSave()
         return false;
 }
 
-
-/**
- * @brief MainWindow::fileSaveAs
- * Saves whatever typed in the editor (TextEdit) as a .sql document as a new location
- * @return
+/*
+ * Saves whatever typed in the editor (TextEdit) as a .sql document in a new location
  */
 bool MainWindow::fileSaveAs()
 {
@@ -809,9 +771,7 @@ bool MainWindow::fileSaveAs()
     return fileSave();
 }
 
-
-/**
- * @brief MainWindow::filePrint
+/*
  * Print whatever typed in the editor (TextEdit) as a PDF, XMS or any custom format
  */
 void MainWindow::filePrint()
@@ -828,9 +788,7 @@ void MainWindow::filePrint()
 #endif
 }
 
-
-/**
- * @brief MainWindow::filePrintPdf
+/*
  * Generate a PDF File containing text typed in the editor (TextEdit)
  */
 void MainWindow::filePrintPdf()
@@ -850,12 +808,8 @@ void MainWindow::filePrintPdf()
 #endif
 }
 
-
-/**
- * @brief MainWindow::setSelectedDatabaseIndicator
+/*
  * Set the currently selected database name visible on the @code SelectedDatbaseIndicator ComboBox.
- *
- * @param txt
  */
 void MainWindow::setSelectedDatabaseIndicatorVisible(const QString &txt)
 {
@@ -870,10 +824,7 @@ void MainWindow::setSelectedDatabaseIndicatorVisible(const QString &txt)
     selectedDatabaseIndicatorComboBox->setCurrentIndex(0);
 }
 
-
-/**
- * @brief MainWindow::WriteSettings
- *
+/*
  * Save Application Settings
  */
 void MainWindow::WriteSettings()
@@ -894,10 +845,7 @@ void MainWindow::WriteSettings()
 #endif
 }
 
-
-/**
- * @brief MainWindow::ReadSettings
- *
+/*
  * Load all the application settings
  */
 void MainWindow::ReadSettings()
@@ -905,7 +853,7 @@ void MainWindow::ReadSettings()
     QSettings m_settings;
 
     recentFileLists = m_settings.value("RecentFiles").toStringList();
-    ui->actionShowTextOnToolbar->setChecked(m_settings.value("IsTextVisibleOnToolButtons", true).toBool());
+    ui->actionShowTextOnToolbar->setChecked(m_settings.value("IsTextVisibleOnToolButtons", false).toBool());
     restoreState(m_settings.value("WindowState").toByteArray());
 
 #ifdef Q_OS_WIN
@@ -962,7 +910,9 @@ void MainWindow::ReadSettings()
     }
 }
 
-
+/*
+ * change the current font of the editor
+ */
 void MainWindow::textFamily(const QFont &f)
 {
     editor->setFont(f);

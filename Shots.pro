@@ -1,15 +1,10 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2017-03-28T22:09:20
-#
-#-------------------------------------------------
-
 QT       += core gui sql printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Shots
 TEMPLATE = app
+win32 :RC_ICONS =logo256.ico
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -27,16 +22,18 @@ SOURCES     += main.cpp\
             Views/mainwindow.cpp \
             Widgets/textedit.cpp \
             Widgets/solutiontreewidget.cpp \
-    Formats/formatstream.cpp \
-    Widgets/tblgenerator.cpp
+            Formats/formatstream.cpp \
+            Widgets/tblgenerator.cpp
 
 HEADERS     += Views/mainwindow.h \
             Libraries/viewmodel.h \
             Widgets/textedit.h \
             Widgets/solutiontreewidget.h \
-    Formats/formatstream.h \
-    Widgets/tblgenerator.h
+            Formats/formatstream.h \
+            Widgets/tblgenerator.h
 
 FORMS       += Views/mainwindow.ui
 
 RESOURCES   += Resources/resources.qrc
+
+# object files

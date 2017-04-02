@@ -2,20 +2,25 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QFontComboBox>
-#include <QComboBox>
-#include <QCompleter>
-#include <QAbstractItemModel>
-#include <QTableView>
-#include <QListWidget>
 #include <QSqlDatabase>
-#include <QSqlQueryModel>
-#include <QCloseEvent>
-#include <QDragEnterEvent>
-#include <QDropEvent>
-#include <QDockWidget>
 
-#include "Widgets/textedit.h"
+QT_BEGIN_NAMESPACE
+class QAbstractItemModel;
+class QFontComboBox;
+class QComboBox;
+class QCompleter;
+class QTableView;
+class QListWidget;
+class QCloseEvent;
+class QDragEnterEvent;
+class QDropEvent;
+class QDockWidget;
+class QSqlQueryModel;
+class QTreeWidgetItem;
+QT_END_NAMESPACE
+
+class TextEdit;
+
 #include "Widgets/solutiontreewidget.h"
 
 namespace Ui {

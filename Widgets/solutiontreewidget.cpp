@@ -12,7 +12,7 @@ SolutionTreeWidget::SolutionTreeWidget(QWidget *parent) : QTreeWidget(parent)
     // Header Item
     auto h = new QTreeWidgetItem;
     h->setIcon(0, QIcon(":/Resources/Tree/foldertree.png"));
-    h->setText(0, "(Localdb) | SQLITELocalDB | 160.67.0.1");
+    h->setText(0, "(Localdb) | SQLITELocalDB | outline");
     h->setFont(0, QFont("Calibri"));
     setHeaderItem(h);
     setHeaderHidden(false);
