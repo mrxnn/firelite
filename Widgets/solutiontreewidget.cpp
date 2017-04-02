@@ -128,27 +128,53 @@ void SolutionTreeWidget::prepareMenu(const QPoint &pos)
     if (st == SelectedItemType::Database)
     {   
         QAction* actionRemoveDatabase = new QAction(tr("Remove File"));
-        QAction* actionNewDatabase = new QAction(tr("Create Table"));
-        QAction* actionExpandAll = new QAction(tr("Expand All"));
-        QAction* actionCollapseAll = new QAction(tr("Collapse All"));
+        QAction* actionExpandAll = new QAction(tr("Expand"));
+        QAction* actionCollapseAll = new QAction(tr("Collapse"));
 
         // Font
         actionRemoveDatabase->setFont(QFont("Calibri"));
-        actionNewDatabase->setFont(QFont("Calibri"));
         actionExpandAll->setFont(QFont("Calibri"));
         actionCollapseAll->setFont(QFont("Calibri"));
 
         QMenu menu(this);
+
         menu.addAction(actionRemoveDatabase);
-        menu.addAction(actionNewDatabase);
+        connect(actionRemoveDatabase, &QAction::triggered, [&](){
+
+            // Delete the selected item
+            if (currentItem())
+                delete currentItem();
+
+            // If there are no items left we explicitly pass a nullptr to notity the consumer
+            // It must be handled by consumer for null selected items
+            if (topLevelItemCount() == 0)
+                emit selectedItemChanged(nullptr, SelectedItemType::None);
+
+        });
+
         menu.addAction(actionExpandAll);
+        connect(actionExpandAll, &QAction::triggered, [&](){
+
+            // Expand only if the current item is a database
+            if(getSelectedItemType() == SelectedItemType::Database)
+                expandItem(currentItem());
+
+        });
+
         menu.addAction(actionCollapseAll);
+        connect(actionCollapseAll, &QAction::triggered, [&](){
+
+            // Collapse only if the current item is a database
+            if (getSelectedItemType() == SelectedItemType::Database)
+                collapseItem(currentItem());
+
+        });
 
         menu.exec(this->mapToGlobal(pos));
     }
     else // table
     {
-        QAction* actionSelectAllCommand = new QAction(tr("Select top 200 records"));
+        QAction* actionSelectAllCommand = new QAction(tr("Select top records"));
         QAction* actionDropCommand = new QAction(tr("Drop table"));
 
         // Font
@@ -156,8 +182,27 @@ void SolutionTreeWidget::prepareMenu(const QPoint &pos)
         actionDropCommand->setFont(QFont("Calibri"));
 
         QMenu menu(this);
+
         menu.addAction(actionSelectAllCommand);
+        connect(actionSelectAllCommand, &QAction::triggered, [&](){
+
+            if (getSelectedItemType() == SelectedItemType::Table)
+            {
+                QString stmt = "Select * from " + currentItem()->text(0);
+                emit statementRequested(stmt);
+            }
+
+        });
+
         menu.addAction(actionDropCommand);
+        connect(actionDropCommand, &QAction::triggered, [&](){
+
+            if (getSelectedItemType() == SelectedItemType::Table)
+            {
+                QString stmt = "Drop table " + currentItem()->text(0);
+                emit statementRequested(stmt);
+            }
+        });
 
         menu.exec(this->mapToGlobal(pos));
     }

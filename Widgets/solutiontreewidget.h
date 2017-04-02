@@ -32,6 +32,11 @@ public:
 signals:
     void selectedItemChanged(QTreeWidgetItem*, SelectedItemType t);
 
+    // Context Menu Related Signals
+    void tableGeneratorRequested();
+    void statementRequested(QString command);
+    void statementAppendRequested(QString command);
+
 private slots:
     void OnItemSelectionChanged();
     void prepareMenu(const QPoint& pos);

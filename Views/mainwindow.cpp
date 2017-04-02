@@ -70,12 +70,36 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ReadSettings();
 }
 
-
 MainWindow::~MainWindow()
 {
     WriteSettings();
 
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *e)
+{
+    WriteSettings();
+    e->accept();
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *e)
+{
+    if (QFileInfo(e->mimeData()->urls().first().toLocalFile()).suffix() == "db")
+        e->accept();
+}
+
+void MainWindow::dropEvent(QDropEvent *e)
+{
+    const QString str = e->mimeData()->urls().first().toLocalFile();
+    bool isLoaded = load(str);
+    if (isLoaded)
+    {
+        solutionTree->addItemTotheExplorar(str);
+        loadTablesToTheSelectedDatabase();
+    }
+    else
+        QMessageBox::warning(this, tr(""), database.lastError().text());
 }
 
 
@@ -223,6 +247,7 @@ void MainWindow::initializeToolbars()
  */
 void MainWindow::initializeUI()
 {
+    setAcceptDrops(true);
     QSplitter* splitter = new QSplitter(Qt::Vertical, this);
 
     //! custom text edit (autocompleter)
@@ -321,6 +346,15 @@ void MainWindow::bind()
 
     // TreeView connections
     connect(solutionTree, &SolutionTreeWidget::selectedItemChanged, this, &MainWindow::onSelectedItemChanged);
+    connect(solutionTree, &SolutionTreeWidget::statementRequested, this, &MainWindow::onStatementRequested);
+    connect(solutionTree, &SolutionTreeWidget::itemDoubleClicked, [&](){
+
+        if (solutionTree->getSelectedItemType() == SolutionTreeWidget::Table)
+        {
+            QString tableName = solutionTree->currentItem()->text(0);
+            editor->insertPlainText(tableName);
+        }
+    });
 }
 
 
@@ -585,11 +619,14 @@ MainWindow::ExecuteQueryType MainWindow::getQueryType(const QString &query, QStr
  * database name Item.
  */
 void MainWindow::loadTablesToTheSelectedDatabase()
-{
+{   
     // Load all the tables in the current item
     auto ci = solutionTree->currentItem();
     if (ci)
     {
+        if (solutionTree->getSelectedItemType() == SolutionTreeWidget::SelectedItemType::Table)
+            ci = ci->parent();
+
         // First we remove all the tables in the item
         foreach (QTreeWidgetItem* i, ci->takeChildren())
         {
@@ -660,9 +697,22 @@ void MainWindow::checkLastErrorIfAny(QSqlQuery *query)
  */
 void MainWindow::onSelectedItemChanged(QTreeWidgetItem *item, SolutionTreeWidget::SelectedItemType t)
 {
-    // if the item is null, throw a runtime exception
-    Q_ASSERT(item);
+    // databases cannot be nullptr, throw an exception if any occurred.
+    if (t == SolutionTreeWidget::Database)
+    {
+        Q_ASSERT(item);
+    }
 
+    // check for empty items | when the items are removed from the solution tree and if there are no items left, the item will be a nullptr.
+    // so this check is useful for scenario where the topLevelItemCount is zero.
+    if (!item)
+    {
+        database.close();
+        setSelectedDatabaseIndicatorVisible("Empty");
+        return;
+    }
+
+    // normal use when the selected items being changed
     switch (t)
     {
     // if selected item is a database, set the gloabal database object to point to the selected one, and open it...
@@ -677,6 +727,10 @@ void MainWindow::onSelectedItemChanged(QTreeWidgetItem *item, SolutionTreeWidget
     }
 }
 
+void MainWindow::onStatementRequested(QString command)
+{
+    editor->setText(command);
+}
 
 /**
  * @brief MainWindow::fileSave

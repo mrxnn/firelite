@@ -10,6 +10,9 @@
 #include <QListWidget>
 #include <QSqlDatabase>
 #include <QSqlQueryModel>
+#include <QCloseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 
 #include "Widgets/textedit.h"
 #include "Widgets/solutiontreewidget.h"
@@ -35,12 +38,18 @@ public:
         OtherStatement
     };
 
+protected:
+    void closeEvent(QCloseEvent* e) Q_DECL_OVERRIDE;
+    void dragEnterEvent(QDragEnterEvent* e) Q_DECL_OVERRIDE;
+    void dropEvent(QDropEvent* e) Q_DECL_OVERRIDE;
+
 private slots:
     void on_actionNew_triggered();
     void on_actionOpen_triggered();
     void on_actionRun_triggered();
 
     void onSelectedItemChanged(QTreeWidgetItem* item, SolutionTreeWidget::SelectedItemType t);
+    void onStatementRequested(QString command);
     void textFamily(const QFont& f);
 
     //! file
