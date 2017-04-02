@@ -26,12 +26,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES     += main.cpp\
             Views/mainwindow.cpp \
             Widgets/textedit.cpp \
-            Widgets/solutiontreewidget.cpp
+            Widgets/solutiontreewidget.cpp \
+    Formats/formatstream.cpp
 
 HEADERS     += Views/mainwindow.h \
             Libraries/viewmodel.h \
             Widgets/textedit.h \
-            Widgets/solutiontreewidget.h
+            Widgets/solutiontreewidget.h \
+    Formats/formatstream.h
 
 FORMS       += Views/mainwindow.ui
 

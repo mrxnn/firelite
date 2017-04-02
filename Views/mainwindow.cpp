@@ -42,6 +42,7 @@
 #include <QDesktopServices>
 
 #include "Libraries/viewmodel.h"
+#include "Formats/formatstream.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -72,8 +73,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow()
 {
-    WriteSettings();
-
     delete ui;
 }
 
@@ -259,6 +258,10 @@ void MainWindow::initializeUI()
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     completer->setWrapAround(false);
     editor->setCompleter(completer);
+
+    //! Default Format Stream
+    FormatStream* fs = new FormatStream(editor->document());
+    Q_UNUSED(fs)
 
     tableView = new QTableView(this);
     activityLog = new QListWidget(this);
