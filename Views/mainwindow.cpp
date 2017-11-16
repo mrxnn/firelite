@@ -521,7 +521,7 @@ void MainWindow::on_actionAbout_triggered()
     image->setAlignment(Qt::AlignCenter);
     layout->addWidget(image);
 
-    QLabel* line1 = new QLabel(tr("Shots 1.0 Sqlite Manager"), &dlg);
+    QLabel* line1 = new QLabel(tr("Firelite 1.1 Sqlite Manager"), &dlg);
     line1->setAlignment(Qt::AlignCenter);
     layout->addWidget(line1);
 
@@ -529,7 +529,7 @@ void MainWindow::on_actionAbout_triggered()
     line2->setAlignment(Qt::AlignCenter);
     layout->addWidget(line2);
 
-    QLabel* line3 = new QLabel(tr("Copyright © 2016 - <a href='http://mayuraray.github.io/shots/'>Homepage</a>"), &dlg);
+    QLabel* line3 = new QLabel(tr("Copyright © 2016 - <a href='http://mayura-ramanayaka.github.io/firelite/'>Homepage</a>"), &dlg);
     line3->setAlignment(Qt::AlignCenter);
     layout->addWidget(line3);
 
