@@ -1,8 +1,6 @@
 <RCC>
     <qresource prefix="/Resources">
         <file>Completer/wordlist.txt</file>
-        <file>Logo/logo96 black.png</file>
-        <file>Logo/logo96.png</file>
         <file>Mac/about.png</file>
         <file>Mac/editcopy.png</file>
         <file>Mac/editcut.png</file>
@@ -42,5 +40,6 @@
         <file>Windows/fileopen.png</file>
         <file>Windows/fileprint.png</file>
         <file>Windows/filesave.png</file>
+        <file>Logo/logo-bold-96.png</file>
     </qresource>
 </RCC>

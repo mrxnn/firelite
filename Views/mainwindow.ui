@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../Resources/resources.qrc">
-    <normaloff>:/Resources/Logo/logo96.png</normaloff>:/Resources/Logo/logo96.png</iconset>
+    <normaloff>:/Resources/Logo/logo-bold-96.png</normaloff>:/Resources/Logo/logo-bold-96.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget"/>
   <widget class="QMenuBar" name="menuBar">

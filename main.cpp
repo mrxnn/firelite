@@ -1,6 +1,6 @@
 /*********************************************************************
  ** Copyright (C) 2016 Mayura Ramanayaka
- ** Main Repository : "http://mayuraray.github.io/shots/"
+ ** Main Repository : "http://mayura-ramanayaka.github.io/firelite/"
  **
  ** This program is free software: you can redistribute it and/or modify
  ** it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     QCoreApplication::setOrganizationName("Mayura Ramanayaka");
-    QCoreApplication::setApplicationName("Shots");
+    QCoreApplication::setApplicationName("Firelite");
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
 
     QScopedPointer<QMainWindow> viewer(new MainWindow);
