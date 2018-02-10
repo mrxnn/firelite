@@ -1,0 +1,13 @@
+.showcase {
+    margin-top: 7rem;
+    &__image {
+        max-width: 80rem;
+        margin: 0 auto;
+        margin: 4rem auto;
+        text-align: center;
+        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.623);
+        img {
+            width: 100%;
+        }
+    }
+}

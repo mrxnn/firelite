@@ -1,0 +1,18 @@
+.btn {
+    text-decoration: none;
+    font-size: 1.9rem;
+    background-color: $color-primary;
+    color: white;
+    display: inline-block;
+    padding: 1rem 2rem;
+    border-radius: 2px;
+
+    &:hover {
+        background-color: $color-secondary;
+    }
+
+    &:active {
+        border-color: black;
+        border: 1px solid black;
+    }
+}

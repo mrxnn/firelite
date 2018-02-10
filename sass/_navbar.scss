@@ -1,0 +1,39 @@
+.navbar {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+
+    &__content {
+        width: 100%;
+        text-align: center;
+        margin-top: 6rem;
+        margin-bottom: 3rem;
+    }
+
+    &__brand {
+        img {
+            width: 100%;
+            max-width: 12rem;
+        }
+    }
+
+    &__list {
+        list-style-type: none;
+    }
+
+    &__item {
+        color: white;
+        display: inline-block;
+        margin: 1rem 5px;
+        a {
+            text-decoration: none;
+            color: $color-primary;
+        }
+
+        &--first {
+            a {
+                color: white;
+            }
+        }
+    }
+}

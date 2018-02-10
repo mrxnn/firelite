@@ -1,0 +1,9 @@
+.header {
+    &__content {
+        text-align: center;
+        .btn {
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+        }
+    }
+}

@@ -5,20 +5,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Firelite</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Firelite Desktop App | Home</title>
+    <link rel="stylesheet" href="dist/css/style.min.css">
+    <link rel="shortcut icon" type="image/png" href="img/logo-bold.png">
 </head>
 
 <body>
 
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar__content">
+                <div class="navbar__brand">
+                    <img src="img/logo-bold.png" alt="logo">
+                    <ul class="navbar__list">
+                        <li class="navbar__item navbar__item--first"><a href="#">Overview</a></li>
+                        <li class="navbar__item"><a href="#">Release Notes</a></li>
+                        <li class="navbar__item"><a href="#">Help</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
     <header class="header">
-        <div class="header__content">
-            <h1 class="heading--primary">Firelite</h1>
-            <p class="text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Totam, sint!</p>
-            <a href="#" class="btn btn--light">Download</a>
+        <div class="container">
+            <div class="header__content">
+                <h1 class="heading--primary">The new sqlite way</h1>
+                <p class="text">Extend your GitHub workflow beyond your browser with GitHub Desktop, 
+                    completely redesigned with Electron. Get a unified cross-platform experience that’s 
+                    completely open source and ready to customize.
+                </p>
+                <a href="#" class="btn">Download for Windows</a>
+                <p class="text small">
+                    Download for <a href="#">macOS</a> or <a href="#">Windows (msi)</a>
+                </p>
+                <p class="text small">
+                    By downloading, you agree to the <a href="#">Terms and Conditions.</a>
+                </p>
+            </div>
         </div>
     </header>
-    
+
+    <section class="showcase">
+        <div class="container">
+            <div class="showcase__image">
+                <img src="img/scn-intel.png" alt="showcase image">
+            </div>
+        </div>
+    </section>
+
 </body>
 
 </html>

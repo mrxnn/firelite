@@ -3,8 +3,7 @@
 *::before {
   margin: 0;
   padding: 0;
-  -webkit-box-sizing: inherit;
-          box-sizing: inherit;
+  box-sizing: inherit;
 }
 
 html {
@@ -14,11 +13,130 @@ html {
 body {
   font-size: 1.6rem;
   font-weight: 400;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.6;
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  background-color: #24292e;
 }
- 
 
- /*# sourceMappingURL= style.css.map */
+.container {
+  width: 80%;
+  max-width: 114rem;
+  margin: auto;
+}
+
+.heading--primary {
+  font-size: 4.8rem;
+  font-weight: 100;
+  color: white;
+  text-align: center;
+}
+
+.heading--primary::after {
+  content: "";
+  border: 3px solid #00ac92;
+  display: block;
+  width: 5rem;
+  margin: 1rem auto 3rem auto;
+}
+
+.text {
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 100;
+  text-align: center;
+  max-width: 653px;
+  margin: auto;
+}
+
+.text.small {
+  font-size: 1.4rem;
+  font-weight: normal;
+}
+
+.text.small a {
+  color: #00ac92;
+  text-decoration: none;
+}
+
+.btn {
+  text-decoration: none;
+  font-size: 1.9rem;
+  background-color: #00ac92;
+  color: white;
+  display: inline-block;
+  padding: 1rem 2rem;
+  border-radius: 2px;
+}
+
+.btn:hover {
+  background-color: #018672;
+}
+
+.btn:active {
+  border-color: black;
+  border: 1px solid black;
+}
+
+.navbar {
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.navbar__content {
+  width: 100%;
+  text-align: center;
+  margin-top: 6rem;
+  margin-bottom: 3rem;
+}
+
+.navbar__brand img {
+  width: 100%;
+  max-width: 12rem;
+}
+
+.navbar__list {
+  list-style-type: none;
+}
+
+.navbar__item {
+  color: white;
+  display: inline-block;
+  margin: 1rem 5px;
+}
+
+.navbar__item a {
+  text-decoration: none;
+  color: #00ac92;
+}
+
+.navbar__item--first a {
+  color: white;
+}
+
+.header__content {
+  text-align: center;
+}
+
+.header__content .btn {
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+}
+
+.showcase {
+  margin-top: 7rem;
+}
+
+.showcase__image {
+  max-width: 80rem;
+  margin: 0 auto;
+  margin: 4rem auto;
+  text-align: center;
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.623);
+}
+
+.showcase__image img {
+  width: 100%;
+}
