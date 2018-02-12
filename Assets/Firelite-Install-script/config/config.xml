@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>Firelite</Name>
+    <Version>1.1.0</Version>
+    <Title>Firelite Installer</Title>
+    <Publisher>Mayura Ramanayaka</Publisher>
+	<InstallerWindowIcon>logo.png</InstallerWindowIcon>
+	<InstallerApplicationIcon>logo-icon</InstallerApplicationIcon>
+	<MaintenanceToolName>MaintenanceTool</MaintenanceToolName>
+	<WizardDefaultWidth>500</WizardDefaultWidth>
+	<WizardDefaultHeight>570</WizardDefaultHeight>
+	<RunProgram>@TargetDir@/Firelite.exe</RunProgram>
+	<RunProgramDescription>Launch Firelite</RunProgramDescription>
+    <StartMenuDir>Firelite</StartMenuDir>
+    <TargetDir>@ApplicationsDir@/Firelite</TargetDir>
+</Installer>
