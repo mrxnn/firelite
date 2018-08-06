@@ -2,7 +2,7 @@ Firelite is a cross platform, lightweight **SQLite** manager written in [Qt](htt
 
 
 
-* The color scheme for syntax highlighting is influenced from the color scheme for *sequel* files in [notepad++](https://notepad-plus-plus.org/). It's not a complete clone though!
+* The color schema for syntax highlighting is inspired by the color schema for *sequel* files in [notepad++](https://notepad-plus-plus.org/). It's not a complete clone though!
 
 
 * Few code samples are grabbed from the qt documentation and tweaked as needed.
