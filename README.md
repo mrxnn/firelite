@@ -1,4 +1,4 @@
-## Firelite :guitar: :violin: :saxophone:
+## Firelite :fire: :zap:
 
 Firelite is a cross platform, lightweight **SQLite** manager written in [Qt](http://qt.io/). It has a very simple UI, including a table designer, query editor, history viewer and few other controls that can be docked, collapsed or removed. Editor comes with syntax highlighting and auto-completion that make it little easier to write complex queries. 
 
